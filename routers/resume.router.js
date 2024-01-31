@@ -30,8 +30,27 @@ router.post('/resumes', needSigninMiddleware, async (req, res, next) => {
       resumeIntro,
     },
   });
-  
-  return res.status(201).json({data: resume});
+
+  return res.status(201).json({ data: resume });
+});
+
+router.get('/resumes', async (req, res, next) => {
+  const resume = await prisma.resume.findMany({
+    select: {
+      resumeId: true,
+      userId: true,
+      resumeTitle: true,
+      resumeIntro: true,
+      resumeName: true,
+      resumeStatus: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+  return res.status(200).json({data: resume});
 });
 
 export default router;
