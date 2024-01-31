@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  userId Int @id @default(autoincrement()) @map("userId")
+  email String @unique @map("email")
+  password String @map("password")
+  passwordRe String @map("passwordRe")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+  
+  userInfos UserInfos?
+  resume Resume[]
+  @@map("Users")
+}
+
+model UserInfos {
+  userInfoId Int @id @default(autoincrement()) @map("userInfoId")
+  userId Int @unique @map("userId")
+  name String @map("name")
+  age Int? @map("age")
+  gender String @map("gender")
+  profileImage String? @map("profileImage")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+@@map("UserInfos")
+}
+
+model Resume {
+  resumeId Int @id @default(autoincrement()) @map("resumeId")
+  userId Int @map("userId")
+  resumeTitle String @map("resumeTitle")
+  resumeIntro String @db.Text @map("resumeIntro")
+  resumeName String @map("resumeName")
+  resumeStatus String @map("resumeStatus")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("Resume")
+}
