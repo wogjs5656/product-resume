@@ -74,4 +74,66 @@ router.get('/resumes/:resumeId', async (req, res, next) => {
   return res.status(200).json({ data: resume });
 });
 
+router.put(
+  '/resumes/:resumeId',
+  needSigninMiddleware,
+  async (req, res, next) => {
+    const { resumeId } = req.params;
+    const { resumeTitle, resumeIntro, resumeStatus, password } = req.body;
+
+    const resume = await prisma.resume.findUnique({
+      where: {
+        resumeId: +resumeId,
+      },
+    });
+
+    if (!resume) {
+      return res.status(404).json({ message: '이력서 조회에 실패하였습니다.' });
+    }
+    if (resume.password !== password) {
+      return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
+    }
+
+    await prisma.resume.update({
+      data: {
+        resumeTitle: resumeTitle,
+        resumeIntro: resumeIntro,
+        resumeStatus: resumeStatus,
+      },
+      where: {
+        resumeId: +resumeId,
+        password: password,
+      },
+    });
+    return res.status(200).json({ message: '이력서 정보를 수정하였습니다.' });
+  }
+);
+
+router.delete(
+  '/resumes/:resumeId',
+  needSigninMiddleware,
+  async (req, res, next) => {
+    const { resumeId } = req.params;
+    const { password } = req.body;
+
+    const resume = await prisma.resume.findUnique({
+      where: {
+        resumeId: +resumeId,
+      },
+    });
+
+    if (!resume) {
+      return res.status(404).json({ message: '이력서 조회에 실패하였습니다.' });
+    }
+    if (resume.password !== password) {
+      return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
+    }
+    await prisma.resume.delete({
+      where: {
+        resumeId: +resumeId,
+      },
+    });
+    return res.status(200).json({ message: '이력서를 삭제하였습니다..' });
+  }
+);
 export default router;
