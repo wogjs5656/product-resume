@@ -40,7 +40,6 @@ router.get('/resumes', async (req, res, next) => {
       resumeId: true,
       userId: true,
       resumeTitle: true,
-      resumeIntro: true,
       resumeName: true,
       resumeStatus: true,
       createdAt: true,
@@ -50,7 +49,28 @@ router.get('/resumes', async (req, res, next) => {
       createdAt: 'desc',
     },
   });
-  return res.status(200).json({data: resume});
+  return res.status(200).json({ data: resume });
+});
+
+router.get('/resumes/:resumId', async (req, res, next) => {
+  const { resumeId } = req.params;
+  const resume = await prisma.resume.findFirst({
+    where: {
+      resumeId: +resumeId,
+    },
+    select: {
+      resumeId: true,
+      userId: true,
+      resumeTitle: true,
+      resumeIntro: true,
+      resumeName: true,
+      resumeStatus: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  return res.status(200).json({ data: resume });
 });
 
 export default router;
