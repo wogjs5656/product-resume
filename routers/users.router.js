@@ -18,25 +18,31 @@ router.post('/sign-up', async (req, res, next) => {
     return res.status(409).json({ message: '이미 존재하는 이메일입니다.' });
   }
 
-  if (password.length < 6 || password !== passwordRe) {
-    return res
-      .status(401)
-      .json({ message: '입력하신 비밀번호가 6자 미만 혹은 비밀번호가 일치하지 않습니다' });
+  if (password.length < 6) {
+    return res.status(401).json({
+      message: '입력하신 비밀번호가 6자 미만입니다',
+    });
+  }
+
+  if (password !== passwordRe) {
+    return res.status(401).json({
+      message: '입력하신 비밀번호가 일치하지 않습니다',
+    });
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
   // Users 테이블에 사용자를 추가합니다.
   const user = await prisma.users.create({
-    data: { 
-        email, 
-        password: hashedPassword, 
-        passwordRe: password
+    data: {
+      email,
+      password: hashedPassword,
+      passwordRe: password,
     },
   });
 
   // UserInfos 테이블에 사용자 정보를 추가합니다.
-  const userinfo = await prisma.userInfos.create({
+  const userInfo = await prisma.userInfos.create({
     data: {
       userId: user.userId, // 생성한 유저의 userId를 바탕으로 사용자 정보를 생성합니다.
       name,
