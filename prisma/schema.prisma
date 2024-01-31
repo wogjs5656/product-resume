@@ -42,7 +42,7 @@ model Resume {
   userId Int @map("userId")
   resumeTitle String @map("resumeTitle")
   resumeIntro String @db.Text @map("resumeIntro")
-  resumeName String? @map("resumeName")
+  resumeName String @map("resumeName")
   resumeStatus ResumeStatus @default(APPLY) @map("resumeStatus")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")

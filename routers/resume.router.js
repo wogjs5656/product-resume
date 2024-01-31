@@ -21,13 +21,14 @@ const router = express.Router();
 
 router.post('/resumes', needSigninMiddleware, async (req, res, next) => {
   const { userId } = req.user;
-  const { resumeTitle, resumeIntro } = req.body;
+  const { resumeTitle, resumeIntro, resumeName } = req.body;
 
   const resume = await prisma.resume.create({
     data: {
       userId: +userId,
       resumeTitle,
       resumeIntro,
+      resumeName,
     },
   });
 
@@ -52,7 +53,7 @@ router.get('/resumes', async (req, res, next) => {
   return res.status(200).json({ data: resume });
 });
 
-router.get('/resumes/:resumId', async (req, res, next) => {
+router.get('/resumes/:resumeId', async (req, res, next) => {
   const { resumeId } = req.params;
   const resume = await prisma.resume.findFirst({
     where: {
