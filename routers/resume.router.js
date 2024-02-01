@@ -1,7 +1,7 @@
 import express from 'express';
 import { prisma } from '../models/index.js';
 import needSigninMiddleware from '../middlewares/need-signin.middleware.js';
-
+import bcrypt from 'bcrypt';
 const router = express.Router();
 
 // model Resume {
@@ -79,7 +79,7 @@ router.put(
   needSigninMiddleware,
   async (req, res, next) => {
     const { resumeId } = req.params;
-    const { resumeTitle, resumeIntro, resumeStatus, password } = req.body;
+    const { resumeTitle, resumeIntro, resumeStatus } = req.body;
 
     const resume = await prisma.resume.findUnique({
       where: {
@@ -90,9 +90,6 @@ router.put(
     if (!resume) {
       return res.status(404).json({ message: '이력서 조회에 실패하였습니다.' });
     }
-    if (resume.password !== password) {
-      return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
-    }
 
     await prisma.resume.update({
       data: {
@@ -102,7 +99,6 @@ router.put(
       },
       where: {
         resumeId: +resumeId,
-        password: password,
       },
     });
     return res.status(200).json({ message: '이력서 정보를 수정하였습니다.' });
@@ -115,18 +111,39 @@ router.delete(
   async (req, res, next) => {
     const { resumeId } = req.params;
     const { password } = req.body;
+    const { userId } = req.user;
 
     const resume = await prisma.resume.findUnique({
       where: {
         resumeId: +resumeId,
+      },
+      select: {
+        userId: true,
       },
     });
 
     if (!resume) {
       return res.status(404).json({ message: '이력서 조회에 실패하였습니다.' });
     }
-    if (resume.password !== password) {
-      return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
+    if (resume.userId !== userId) {
+      return res
+        .status(401)
+        .json({ message: '해당 이력서에 권한이 없습니다.' });
+    }
+
+    const user = await prisma.users.findUnique({
+      where: {
+        userId: +userId
+      },
+      select: {
+        password: true
+      }
+    })
+
+    const validPassword = await bcrypt.compare(password, user.password);
+
+    if( !validPassword ) {
+      return res.status(401).json({message: '비밀번호가 일치하지 않습니다.'})
     }
     await prisma.resume.delete({
       where: {
