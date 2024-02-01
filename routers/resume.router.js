@@ -9,7 +9,7 @@ const router = express.Router();
 //     userId Int @map("userId")
 //     resumeTitle String @map("resumeTitle")
 //     resumeIntro String @db.Text @map("resumeIntro")
-//     resumeName String @map("resumeName")
+//     resumeAuthor String @map("resumeAuthor")
 //     resumeStatus ResumeStatus @default(APPLY) @map("resumeStatus")
 //     createdAt DateTime @default(now()) @map("createdAt")
 //     updatedAt DateTime @updatedAt @map("updatedAt")
@@ -21,34 +21,42 @@ const router = express.Router();
 
 router.post('/resumes', needSigninMiddleware, async (req, res, next) => {
   const { userId } = req.user;
-  const { resumeTitle, resumeIntro, resumeName } = req.body;
+  const { resumeTitle, resumeIntro, resumeAuthor } = req.body;
 
   const resume = await prisma.resume.create({
     data: {
       userId: +userId,
       resumeTitle,
       resumeIntro,
-      resumeName,
+      resumeAuthor,
     },
   });
 
   return res.status(201).json({ data: resume });
 });
 
+// - 이력서 목록은 QueryString으로 order 데이터를 받아서 정렬 방식을 결정합니다.
+//     - orderKey, orderValue 를 넘겨받습니다. o
+//     - orderValue에 들어올 수 있는 값은 ASC, DESC 두가지 값으로 대소문자 구분을 하지 않습니다. o
+//     - ASC는 과거순, DESC는 최신순 그리고 둘 다 해당하지 않거나 값이 없는 경우에는 최신순 정렬을 합니다.
+//     - 예시 데이터 : `orderKey=userId&orderValue=desc`
+
 router.get('/resumes', async (req, res, next) => {
+  let { orderKey, orderValue } = req.query; 
+  
   const resume = await prisma.resume.findMany({
     select: {
       resumeId: true,
       userId: true,
       resumeTitle: true,
-      resumeName: true,
+      resumeAuthor: true,
       resumeStatus: true,
       createdAt: true,
       updatedAt: true,
     },
     orderBy: {
-      createdAt: 'desc',
-    },
+      [orderKey || 'createdAt']: orderValue || 'desc',
+    }
   });
   return res.status(200).json({ data: resume });
 });
@@ -64,7 +72,7 @@ router.get('/resumes/:resumeId', async (req, res, next) => {
       userId: true,
       resumeTitle: true,
       resumeIntro: true,
-      resumeName: true,
+      resumeAuthor: true,
       resumeStatus: true,
       createdAt: true,
       updatedAt: true,
@@ -89,6 +97,9 @@ router.put(
 
     if (!resume) {
       return res.status(404).json({ message: '이력서 조회에 실패하였습니다.' });
+    }
+    if(!resumeStatus) {
+      return res.status(400).json({message: '유효하지 않은 상태입니다.'})
     }
 
     await prisma.resume.update({
