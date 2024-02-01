@@ -118,7 +118,7 @@ router.put(
         resumeId: +resumeId,
       },
     });
-    return res.status(200).json({ message: '이력서 정보를 수정하였습니다.' });
+    return res.status(201).json({ message: '이력서 정보를 수정하였습니다.' });
   }
 );
 
@@ -167,7 +167,7 @@ router.delete(
         resumeId: +resumeId,
       },
     });
-    return res.status(200).json({ message: '이력서를 삭제하였습니다..' });
+    return res.status(201).json({ message: '이력서를 삭제하였습니다..' });
   }
 );
 export default router;
