@@ -32,7 +32,7 @@ router.post('/sign-up', async (req, res, next) => {
     });
   }
 
-  const hashedPassword = await bcrypt.hash(password, '12h');
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   // Users 테이블에 사용자를 추가합니다.
   const user = await prisma.users.create({
@@ -73,7 +73,10 @@ router.post('/sign-in', async (req, res, next) => {
     {
       userId: user.userId,
     },
-    'custom-secret-key'
+    'custom-secret-key',
+    {
+      expiresIn: '12h'
+    }
   );
 
   res.cookie('authorization', `Bearer ${token}`);
