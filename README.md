@@ -1,10 +1,7 @@
 # 환경변수
 - .env 파일에 어떤 환경변수가 추가되어야 하는지 작성합니다.
-- key=value 형태에서 key만 나열합니다. value는 비밀!
 
-- DB_URL
-- JWT_SECRET
-- 그 밖의 사용한 환경변수를 나열해 주세요.
+- DATABASE_URL
 
 # API 명세서 URL
 - https://certain-editor-a97.notion.site/69cd8fd403944e969b3435aa18f8195b?v=7684c233c0794186a3ab2a4de5b7dd36
@@ -65,6 +62,6 @@
     
     A: .env를 활용해서 변경부분 줄이기, 주석처리해서 쉽게 알아볼 수 있게하기
 
-    
+
 6. **API 명세서**
     - notion 혹은 엑셀에 작성하여 전달하는 것 보다 swagger 를 통해 전달하면 장점은 무엇일까요?
