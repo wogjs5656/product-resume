@@ -107,9 +107,6 @@ router.put(
     if (!resume) {
       return res.status(404).json({ message: '이력서 조회에 실패하였습니다.' });
     }
-    if (!resumeStatus) {
-      return res.status(400).json({ message: '유효하지 않은 상태입니다.' });
-    }
 
     await prisma.resume.update({
       data: {

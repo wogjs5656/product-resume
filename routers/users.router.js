@@ -17,7 +17,7 @@ router.post('/sign-up', async (req, res, next) => {
   });
 
   if (isExistUser) {
-    return res.status(409).json({ message: '이미 존재하는 이메일입니다.' });
+    return res.status(400).json({ message: '이미 존재하는 이메일입니다.' });
   }
 
   if (password.length < 6) {
