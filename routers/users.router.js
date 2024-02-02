@@ -69,6 +69,7 @@ router.post('/sign-in', async (req, res, next) => {
   else if (!(await bcrypt.compare(password, user.password)))
     return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
 
+    // 토큰의 키 값을 need-signin.middleware에 전달 하려고 custiom-secret-key 사용
   const token = jwt.sign(
     {
       userId: user.userId,
