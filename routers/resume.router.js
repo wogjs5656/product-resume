@@ -23,11 +23,20 @@ router.post('/resumes', needSigninMiddleware, async (req, res, next) => {
   const { userId } = req.user;
   const { resumeTitle, resumeIntro, resumeAuthor } = req.body;
 
+  if(!resumeTitle) {
+    return res.status(400).json({message: '이력서 제목은 필수 값 입니다.'})
+  }
+
+  if(!resumeIntro) {
+    return res.status(400).json({message: '자기소개는 필수 값 입니다.'})
+  }
+
   const resume = await prisma.resume.create({
     data: {
       userId: +userId,
       resumeTitle,
       resumeIntro,
+      resumeStatus: 'APPLY',
       resumeAuthor,
     },
   });
