@@ -9,8 +9,9 @@ const router = express.Router();
 
 /** 사용자 회원가입 API **/
 router.post('/sign-up', async (req, res, next) => {
-  const { email, clientId, password, passwordRe, name, age, gender, grade } = req.body;
-  if(grade && !['user', 'admin'].includes(grade)) {
+  const { email, clientId, password, passwordRe, name, age, gender, grade } =
+    req.body;
+  if (grade && !['user', 'admin'].includes(grade)) {
     return res.status(400).json({ message: '등급이 올바르지 않습니다.' });
   }
   if (!clientId) {
@@ -113,7 +114,7 @@ router.post('/sign-in', async (req, res, next) => {
     user = await prisma.users.findFirst({
       where: {
         clientId,
-      }
+      },
     });
 
     if (!user)
@@ -129,7 +130,7 @@ router.post('/sign-in', async (req, res, next) => {
 
     user = await prisma.users.findFirst({
       where: {
-        email
+        email,
       },
     });
 
@@ -149,9 +150,22 @@ router.post('/sign-in', async (req, res, next) => {
       expiresIn: '12h',
     }
   );
+  const refreshToken = jwt.sign(
+    {
+      userId: user.userId,
+    },
+    'refresh-key',
+    {
+      expiresIn: '7d',
+    }
+  );
 
   res.cookie('authorization', `Bearer ${token}`);
-  return res.status(201).json({ message: '로그인 성공' });
+
+  return res.status(201).json({
+    token,
+    refreshToken,
+  });
 });
 
 router.get('/users', needSigninMiddleware, async (req, res, next) => {
