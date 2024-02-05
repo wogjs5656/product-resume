@@ -72,6 +72,10 @@ router.get('/resumes', needSigninMiddleware, async (req, res, next) => {
 
 router.get('/resumes/:resumeId', async (req, res, next) => {
   const { resumeId } = req.params;
+  if (!resumeId) {
+    return res.status(400).json({ message: 'resumeId는 필수 값입니다.' });
+  }
+
   const resume = await prisma.resume.findFirst({
     where: {
       resumeId: +resumeId,
@@ -87,7 +91,9 @@ router.get('/resumes/:resumeId', async (req, res, next) => {
       updatedAt: true,
     },
   });
-
+  if (!resume) {
+    return res.status(400).json({data: {}});
+  }
   return res.status(200).json({ data: resume });
 });
 
