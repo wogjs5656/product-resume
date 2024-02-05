@@ -140,10 +140,10 @@ router.put(
       return res.status(404).json({ message: '이력서 조회에 실패하였습니다.' });
     }
 
-    if(resume.userId !== userId) {
+    if(userId.grade === 'user' && resume.userId !== userId) {
       return res.status(400).json({message: '올바르지 않은 요청입니다.'})
     }
-
+    // 내가 작성한 이력서이거나 권한 등급이 admin이다.
     await prisma.resume.update({
       data: {
         resumeTitle: resumeTitle,

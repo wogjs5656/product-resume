@@ -9,8 +9,10 @@ const router = express.Router();
 
 /** 사용자 회원가입 API **/
 router.post('/sign-up', async (req, res, next) => {
-  const { email, clientId, password, passwordRe, name, age, gender } = req.body;
-
+  const { email, clientId, password, passwordRe, name, age, gender, grade } = req.body;
+  if(grade && !['user', 'admin'].includes(grade)) {
+    return res.status(400).json({ message: '등급이 올바르지 않습니다.' });
+  }
   if (!clientId) {
     if (!email) {
       return res.status(400).json({ message: '이메일은 필수 값 입니다.' });
@@ -49,6 +51,7 @@ router.post('/sign-up', async (req, res, next) => {
     const user = await prisma.users.create({
       data: {
         clientId,
+        grade,
       },
     });
     // UserInfos 테이블에 사용자 정보를 추가합니다.
@@ -82,6 +85,7 @@ router.post('/sign-up', async (req, res, next) => {
         email,
         password: hashedPassword,
         passwordRe: password,
+        grade,
       },
     });
 

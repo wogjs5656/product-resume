@@ -16,6 +16,7 @@ model Users {
   email String? @unique @map("email")
   password String? @map("password")
   passwordRe String? @map("passwordRe")
+  grade UserGrade @default(user) @map("grade")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
   
@@ -60,4 +61,9 @@ enum ResumeStatus {
   INTERVIEW1
   INTERVIEW2
   FINAL_PASS
+}
+
+enum UserGrade {
+  user
+  admin
 }
