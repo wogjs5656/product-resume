@@ -31,7 +31,6 @@ router.post('/sign-up', async (req, res, next) => {
         message: '입력하신 비밀번호가 일치하지 않습니다',
       });
     }
-  
   }
 
   // clientId kakao 로그인
@@ -76,7 +75,7 @@ router.post('/sign-up', async (req, res, next) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-  
+
     // Users 테이블에 사용자를 추가합니다.
     const user = await prisma.users.create({
       data: {
@@ -85,7 +84,7 @@ router.post('/sign-up', async (req, res, next) => {
         passwordRe: password,
       },
     });
-  
+
     // UserInfos 테이블에 사용자 정보를 추가합니다.
     const userInfo = await prisma.userInfos.create({
       data: {
@@ -95,24 +94,47 @@ router.post('/sign-up', async (req, res, next) => {
         gender: gender.toUpperCase(), // 성별을 대문자로 변환합니다.
       },
     });
-  
+
     return res.status(201).json({ message: '회원가입이 완료되었습니다.' });
   }
 });
 
 /** 로그인 API **/
-
 router.post('/sign-in', async (req, res, next) => {
-  const { email, password } = req.body;
-  const user = await prisma.users.findFirst({
-    where: { email },
-  });
-  if (!user)
-    return res.status(401).json({ message: '존재하지 않는 이메일입니다.' });
-  // 입력받은 사용자의 비밀번호와 데이터베이스에 저장된 비밀번호를 비교합니다.
-  else if (!(await bcrypt.compare(password, user.password)))
-    return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
+  const { clientId, email, password } = req.body;
+  let user;
 
+  if (clientId) {
+    // kakao 로그인
+    user = await prisma.users.findFirst({
+      where: {
+        clientId,
+      }
+    });
+
+    if (!user)
+      return res.status(401).json({ message: '존재하지 않는 이메일입니다.' });
+  } else {
+    // email 로그인
+    if (!email) {
+      return res.status(400).json({ message: '이메일은 필수 값 입니다.' });
+    }
+    if (!password) {
+      return res.status(400).json({ message: '비밀번호는 필수 값 입니다.' });
+    }
+
+    user = await prisma.users.findFirst({
+      where: {
+        email
+      },
+    });
+
+    if (!user)
+      return res.status(401).json({ message: '존재하지 않는 이메일입니다.' });
+    // 입력받은 사용자의 비밀번호와 데이터베이스에 저장된 비밀번호를 비교합니다.
+    else if (!(await bcrypt.compare(password, user.password)))
+      return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
+  }
   // 토큰의 키 값을 need-signin.middleware에 전달 하려고 custiom-secret-key 사용
   const token = jwt.sign(
     {
