@@ -112,7 +112,21 @@ router.put(
   async (req, res, next) => {
     const { resumeId } = req.params;
     const { resumeTitle, resumeIntro, resumeStatus } = req.body;
-
+    const {userId} = req.user;
+  
+    if(!resumeId) {
+      return res.status(400).json({message: 'resumeId는 필수 값 입니다.'})
+    }
+    if(!resumeTitle) {
+      return res.status(400).json({message: '이력서 제목은 필수 값 입니다.'})
+    }
+    if(!resumeIntro) {
+      return res.status(400).json({message: '자기소개는 필수 값 입니다.'})
+    }
+    if(!resumeStatus) {
+      return res.status(400).json({message: '상태 값은 필수 값 입니다.'})
+    }
+    
     const resume = await prisma.resume.findUnique({
       where: {
         resumeId: +resumeId,
@@ -121,6 +135,10 @@ router.put(
 
     if (!resume) {
       return res.status(404).json({ message: '이력서 조회에 실패하였습니다.' });
+    }
+
+    if(resume.userId !== userId) {
+      return res.status(400).json({message: '올바르지 않은 요청입니다.'})
     }
 
     await prisma.resume.update({
