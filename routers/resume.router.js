@@ -126,7 +126,10 @@ router.put(
     if(!resumeStatus) {
       return res.status(400).json({message: '상태 값은 필수 값 입니다.'})
     }
-    
+    if(!['APPLY','DROP','PASS', 'INTERVIEW1', 'INTERVIEW2', 'FINAL_PASS'].includes(resumeStatus)){
+      return res.status(400).json({message: '올바르지 않은 상태 값 입니다.'})
+    }
+
     const resume = await prisma.resume.findUnique({
       where: {
         resumeId: +resumeId,
