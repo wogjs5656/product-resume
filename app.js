@@ -10,7 +10,7 @@ import dotenv from 'dotenv'
 dotenv.config();
 
 const app = express();
-const PORT = 3020;
+const PORT = 3021;
 
 app.use(express.json());
 app.use(cookieParser());
