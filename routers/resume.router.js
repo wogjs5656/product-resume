@@ -134,7 +134,7 @@ router.put(
       return res.status(400).json({message: '올바르지 않은 상태 값 입니다.'})
     }
 
-    const resume = await prisma.resume.findUnique({
+    const resume = await prisma.resume.findFirst({
       where: {
         resumeId: +resumeId,
       },
@@ -145,19 +145,20 @@ router.put(
     }
 
     if(userId.grade === 'user' && resume.userId !== userId) {
-      return res.status(400).json({message: '올바르지 않은 요청입니다.'})
+      return res.status(401).json({message: '해당 이력서에 권한이 없습니다.'})
     }
     // 내가 작성한 이력서이거나 권한 등급이 admin이다.
     await prisma.resume.update({
+      where: {
+        resumeId: +resumeId,
+      },
       data: {
         resumeTitle: resumeTitle,
         resumeIntro: resumeIntro,
         resumeStatus: resumeStatus,
-      },
-      where: {
-        resumeId: +resumeId,
-      },
+      }
     });
+
     return res.status(201).json({ message: '이력서 정보를 수정하였습니다.' });
   }
 );
@@ -167,16 +168,16 @@ router.delete(
   needSigninMiddleware,
   async (req, res, next) => {
     const { resumeId } = req.params;
-    const { password } = req.body;
     const { userId } = req.user;
 
-    const resume = await prisma.resume.findUnique({
+    if(!resumeId) {
+      return res.status(400).json({message: 'resumeId는 필수값입니다.'})
+    }
+    
+    const resume = await prisma.resume.findFirst({
       where: {
         resumeId: +resumeId,
-      },
-      select: {
-        userId: true,
-      },
+      }
     });
 
     if (!resume) {
@@ -188,20 +189,6 @@ router.delete(
         .json({ message: '해당 이력서에 권한이 없습니다.' });
     }
 
-    const user = await prisma.users.findUnique({
-      where: {
-        userId: +userId,
-      },
-      select: {
-        password: true,
-      },
-    });
-
-    const validPassword = await bcrypt.compare(password, user.password);
-
-    if (!validPassword) {
-      return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
-    }
     await prisma.resume.delete({
       where: {
         resumeId: +resumeId,
