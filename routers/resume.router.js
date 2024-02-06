@@ -117,7 +117,7 @@ router.put(
     const { resumeId } = req.params;
     const { resumeTitle, resumeIntro, resumeStatus } = req.body;
     const {userId} = req.user;
-  
+    const user = req.user;
     if(!resumeId) {
       return res.status(400).json({message: 'resumeId는 필수 값 입니다.'})
     }
@@ -144,7 +144,7 @@ router.put(
       return res.status(400).json({ message: '이력서 조회에 실패하였습니다.' });
     }
 
-    if(userId.grade === 'user' && resume.userId !== userId) {
+    if(user.grade === 'user' && resume.userId !== userId) {
       return res.status(401).json({message: '해당 이력서에 권한이 없습니다.'})
     }
     // 내가 작성한 이력서이거나 권한 등급이 admin이다.
