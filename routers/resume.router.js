@@ -51,17 +51,19 @@ router.post('/resumes', needSigninMiddleware, async (req, res, next) => {
 //     - 예시 데이터 : `orderKey=userId&orderValue=desc`
 
 router.get('/resumes', needSigninMiddleware, async (req, res, next) => {
-  const { orderKey, orderValue } = req.query;
+  const orderKey = req.query.orderKey ?? 'resumeId';
+  const orderValue = req.query.orderValue ?? 'desc';
   const { userId } = req.user;
 
-  if (userId !== +orderKey) {
-    return res.status(404).json({ message: '해당 이력서에 권한이 없습니다.' });
+  if (!['resumeId', 'status'].includes(orderKey)) {
+    return res.status(400).json({message: 'orderkey가 올바르지 않습니다.'})
+  }
+
+  if (!['asc', 'desc'].includes(orderValue.toLowerCase())) {
+    return res.status(400).json({message: 'orderValue가 올바르지 않습니다.'})
   }
 
   const resume = await prisma.resume.findMany({
-    where: {
-      userId: +orderKey,
-    },
     select: {
       resumeId: true,
       userId: true,
@@ -69,11 +71,13 @@ router.get('/resumes', needSigninMiddleware, async (req, res, next) => {
       resumeAuthor: true,
       resumeStatus: true,
       createdAt: true,
-      updatedAt: true,
+      updatedAt: true, 
     },
-    orderBy: {
-      createdAt: orderValue,
-    },
+    orderBy: [
+      {
+        [orderKey]: orderValue,
+      }
+    ]
   });
 
   return res.status(200).json({ data: resume });
