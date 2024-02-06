@@ -85,7 +85,6 @@ router.post('/sign-up', async (req, res, next) => {
       data: {
         email,
         password: hashedPassword,
-        passwordRe: password,
         grade,
       },
     });
