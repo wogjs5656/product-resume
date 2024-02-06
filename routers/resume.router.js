@@ -141,7 +141,7 @@ router.put(
     });
 
     if (!resume) {
-      return res.status(404).json({ message: '이력서 조회에 실패하였습니다.' });
+      return res.status(400).json({ message: '이력서 조회에 실패하였습니다.' });
     }
 
     if(userId.grade === 'user' && resume.userId !== userId) {
@@ -181,7 +181,7 @@ router.delete(
     });
 
     if (!resume) {
-      return res.status(404).json({ message: '이력서 조회에 실패하였습니다.' });
+      return res.status(400).json({ message: '이력서 조회에 실패하였습니다.' });
     }
     if (resume.userId !== userId) {
       return res
