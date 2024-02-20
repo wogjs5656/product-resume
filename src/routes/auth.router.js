@@ -1,5 +1,5 @@
 import express from 'express';
-import { prisma } from '../models/index.js';
+import { prisma } from '../../models/index.js';
 import jwt from 'jsonwebtoken';
 const router = express.Router();
 

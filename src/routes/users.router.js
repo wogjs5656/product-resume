@@ -1,10 +1,10 @@
 // src/routes/users.router.js
 
 import express from 'express';
-import { prisma } from '../models/index.js';
+import { prisma } from '../../models/index.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import needSigninMiddleware from '../middlewares/need-signin.middleware.js';
+import needSigninMiddleware from '../../middlewares/need-signin.middleware.js';
 const router = express.Router();
 
 /** 사용자 회원가입 API **/
@@ -167,7 +167,7 @@ router.post('/sign-in', async (req, res, next) => {
   });
 });
 
-router.get('/users', needSigninMiddleware, async (req, res, next) => {
+router.get('/', needSigninMiddleware, async (req, res, next) => {
   const { userId } = req.user;
 
   const user = await prisma.users.findFirst({
