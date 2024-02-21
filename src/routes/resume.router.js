@@ -1,5 +1,5 @@
 import express from 'express';
-import { prisma } from '../../models/index.js';
+import { prisma } from '../../utils/index.js';
 import { ResumeController } from '../controllers/resume.controller.js'; 
 import { ResumeService } from '../services/resume.service.js';
 import { ResumeRepository } from '../repositories/resume.repositorie.js';

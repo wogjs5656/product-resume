@@ -1,192 +1,26 @@
 // src/routes/users.router.js
 
 import express from 'express';
-import { prisma } from '../../models/index.js';
+import { prisma } from '../../utils/index.js'
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import needSigninMiddleware from '../../middlewares/need-signin.middleware.js';
+import { UserController } from '../controllers/user.controller.js';
+import { UserService } from '../services/user.service.js';
+import { UserRepository } from '../repositories/user.repositorie.js';
 const router = express.Router();
 
+const userRepository = new UserRepository(prisma);
+const userService = new UserService(userRepository);
+const userController = new UserController(userService);
+
 /** 사용자 회원가입 API **/
-router.post('/sign-up', async (req, res, next) => {
-  const { email, clientId, password, passwordRe, name, age, gender, grade } =
-    req.body;
-  if (grade && !['user', 'admin'].includes(grade)) {
-    return res.status(400).json({ message: '등급이 올바르지 않습니다.' });
-  }
-  if (!clientId) {
-    if (!email) {
-      return res.status(400).json({ message: '이메일은 필수 값 입니다.' });
-    }
-    if (!password) {
-      return res.status(400).json({ message: '이메일은 필수 값 입니다.' });
-    }
-    if (!passwordRe) {
-      return res.status(400).json({ message: '이메일은 필수 값 입니다.' });
-    }
-    if (password.length < 6) {
-      return res.status(401).json({
-        message: '입력하신 비밀번호가 6자 미만입니다',
-      });
-    }
-    if (password !== passwordRe) {
-      return res.status(401).json({
-        message: '입력하신 비밀번호가 일치하지 않습니다',
-      });
-    }
-  }
-
-  // clientId kakao 로그인
-  if (clientId) {
-    const isExistUser = await prisma.users.findFirst({
-      where: {
-        clientId,
-      },
-    });
-
-    if (isExistUser) {
-      return res.status(400).json({ message: '이미 가입된 사용자 입니다.' });
-    }
-
-    // Users 테이블에 사용자를 추가합니다.
-    const user = await prisma.users.create({
-      data: {
-        clientId,
-        grade,
-      },
-    });
-    // UserInfos 테이블에 사용자 정보를 추가합니다.
-    const userInfo = await prisma.userInfos.create({
-      data: {
-        userId: user.userId, // 생성한 유저의 userId를 바탕으로 사용자 정보를 생성합니다.
-        name,
-        age,
-        gender: gender.toUpperCase(), // 성별을 대문자로 변환합니다.
-      },
-    });
-
-    return res.status(201).json({ message: '회원가입이 완료되었습니다.' });
-  } else {
-    // email 검증
-    const isExistUser = await prisma.users.findFirst({
-      where: {
-        email,
-      },
-    });
-
-    if (isExistUser) {
-      return res.status(400).json({ message: '이미 존재하는 이메일입니다.' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Users 테이블에 사용자를 추가합니다.
-    const user = await prisma.users.create({
-      data: {
-        email,
-        password: hashedPassword,
-        grade,
-      },
-    });
-
-    // UserInfos 테이블에 사용자 정보를 추가합니다.
-    const userInfo = await prisma.userInfos.create({
-      data: {
-        userId: user.userId, // 생성한 유저의 userId를 바탕으로 사용자 정보를 생성합니다.
-        name,
-        age,
-        gender: gender.toUpperCase(), // 성별을 대문자로 변환합니다.
-      },
-    });
-
-    return res.status(201).json({ message: '회원가입이 완료되었습니다.' });
-  }
-});
+router.post('/sign-up', userController.signUpWithEmail);
 
 /** 로그인 API **/
-router.post('/sign-in', async (req, res, next) => {
-  const { clientId, email, password } = req.body;
-  let user;
+router.post('/sign-in', userController.signInWithEmail);
 
-  if (clientId) {
-    // kakao 로그인
-    user = await prisma.users.findFirst({
-      where: {
-        clientId,
-      },
-    });
-
-    if (!user)
-      return res.status(401).json({ message: '존재하지 않는 이메일입니다.' });
-  } else {
-    // email 로그인
-    if (!email) {
-      return res.status(400).json({ message: '이메일은 필수 값 입니다.' });
-    }
-    if (!password) {
-      return res.status(400).json({ message: '비밀번호는 필수 값 입니다.' });
-    }
-
-    user = await prisma.users.findFirst({
-      where: {
-        email,
-      },
-    });
-
-    if (!user)
-      return res.status(401).json({ message: '존재하지 않는 이메일입니다.' });
-    // 입력받은 사용자의 비밀번호와 데이터베이스에 저장된 비밀번호를 비교합니다.
-    else if (!(await bcrypt.compare(password, user.password)))
-      return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
-  }
-  // 토큰의 키 값을 need-signin.middleware에 전달 하려고 custiom-secret-key 사용
-  const token = jwt.sign(
-    {
-      userId: user.userId,
-    },
-    'custom-secret-key',
-    {
-      expiresIn: '12h',
-    }
-  );
-  const refreshToken = jwt.sign(
-    {
-      userId: user.userId,
-    },
-    'refresh-key',
-    {
-      expiresIn: '7d',
-    }
-  );
-
-  res.cookie('authorization', `Bearer ${token}`);
-
-  return res.status(201).json({
-    token,
-    refreshToken,
-  });
-});
-
-router.get('/', needSigninMiddleware, async (req, res, next) => {
-  const { userId } = req.user;
-
-  const user = await prisma.users.findFirst({
-    where: { userId: +userId },
-    select: {
-      userId: true,
-      email: true,
-      createdAt: true,
-      updatedAt: true,
-      userInfos: {
-        select: {
-          name: true,
-          age: true,
-          gender: true,
-        },
-      },
-    },
-  });
-  return res.status(200).json({ data: user });
-});
+// 내 정보 조회
+router.get('/', needSigninMiddleware, userController.findMyInfo);
 
 export default router;
