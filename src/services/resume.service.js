@@ -1,4 +1,4 @@
-import { ResumeRepository } from '../repositories/resume.repositorie.js';
+import { ResumeRepository } from '../repository/resume.repository.js';
 
 export class ResumeService {
   constructor(resumeRepository) {
