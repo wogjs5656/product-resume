@@ -37,7 +37,6 @@ export class ResumeController {
     try {
       const orderKey = req.query.orderKey ?? 'resumeId';
       const orderValue = req.query.orderValue ?? 'desc';
-      const { userId } = req.user;
 
       if (!['resumeId', 'status'].includes(orderKey)) {
         return res

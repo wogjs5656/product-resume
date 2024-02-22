@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { UserRepository } from '../repositories/user.repositorie.js';
+import { UserRepository } from '../repositories/user.repository.js';
 
 export class AuthService {
   constructor(userRepository) {
