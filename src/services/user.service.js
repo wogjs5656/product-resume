@@ -74,12 +74,18 @@ export class UserService {
       user = await this.userRepository.findUserByClientId(clientId);
     }
     if (!user) {
-      return res.status(401).json({ message: '존재하지 않는 이메일입니다.' });
+      throw {
+        code: 401,
+        message: '존재하지 않는 이메일입니다.',
+      }
     }
 
     // console.log(user.password);
     if (!(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
+      throw {
+        code: 401,
+        message: '비밀번호가 일치하지 않습니다',
+      }
     }
 
     return {
