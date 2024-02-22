@@ -7,7 +7,7 @@ import bcrypt from 'bcrypt';
 import needSigninMiddleware from '../../middlewares/need-signin.middleware.js';
 import { UserController } from '../controllers/user.controller.js';
 import { UserService } from '../services/user.service.js';
-import { UserRepository } from '../repositories/user.repository.js';
+import { UserRepository } from '../repository/user.repository.js';
 const router = express.Router();
 
 const userRepository = new UserRepository(prisma);

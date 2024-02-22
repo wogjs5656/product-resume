@@ -27,17 +27,15 @@ describe('Posts Repository Unit Test', () => {
     mockPrisma.resume.create.mockReturnValue(mockReturn);
   
     const createResumeParams = {
-      userId: userId,
-      resumeTitle: resumeTitle,
-      resumeIntro: resumeIntro,
-      resumeStatus: 'APPLY',
-      resumeAuthor: resumeAuthor,
+      userId: 1,
+      resumeTitle: "제목",
+      resumeIntro: "내용",
+      resumeAuthor: "재헌",
     };
     const createResumeData = await resumeRepository.createResume(
       createResumeParams.userId,
-      createResumeParams.resumeTitle,
+      createResumeParams.resumeTitle,   
       createResumeParams.resumeIntro,
-      createResumeParams.resumeStatus,
       createResumeParams.resumeAuthor
     );
     expect(createResumeData).toBe(mockReturn);

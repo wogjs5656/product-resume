@@ -1,3 +1,5 @@
+// import { dataSource } from "typeorm";
+
 export class ResumeRepository {
   constructor(prisma) {
     this.prisma = prisma;
@@ -54,6 +56,22 @@ export class ResumeRepository {
         updatedAt: true,
       },
     });
+
+    // const resumes = await dataSource.getRepository('User').findOne({
+    //   where: {
+    //     resumeId: +resumeId,
+    //   },
+    //     select: {
+    //     resumeId: true,
+    //     userId: true,
+    //     resumeTitle: true,
+    //     resumeIntro: true,
+    //     resumeAuthor: true,
+    //     resumeStatus: true,
+    //     createdAt: true,
+    //     updatedAt: true,
+    //   },
+    // })
     return resumes;
   };
 

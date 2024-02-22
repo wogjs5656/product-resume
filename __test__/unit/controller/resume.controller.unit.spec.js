@@ -11,6 +11,7 @@ const mockResumeService = {
 
 const mockRequest = {
   body: jest.fn(),
+  query: jest.fn(),
 };
 
 const mockResponse = {
