@@ -5,6 +5,15 @@ export class UserRepository {
     this.prisma = prisma;
   }
 
+  async findOneUserByUserId(userId) {
+    const user = await prisma.users.findFirst({
+      where: {
+        userId,
+      },
+    });
+    return user;
+  }
+
   async findUserByEmail(email) {
     const user = await this.prisma.users.findUnique({
       where: {
