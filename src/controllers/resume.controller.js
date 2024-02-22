@@ -37,7 +37,6 @@ export class ResumeController {
     try {
       const orderKey = req.query.orderKey ?? 'resumeId';
       const orderValue = req.query.orderValue ?? 'desc';
-      const { userId } = req.user;
 
       if (!['resumeId', 'status'].includes(orderKey)) {
         return res
@@ -67,11 +66,15 @@ export class ResumeController {
       if (!resumeId) {
         return res.status(400).json({ message: 'resumeId는 필수 값입니다.' });
       }
+
       const resume = await this.resumeService.findDeResume(resumeId);
 
+      if(!resume) {
+        return res.json({data: {}})
+      }
       return res
         .status(200)
-        .json({ message: '상품 상세 정보를 조회하였습니다.', data: resume });
+        .json({ message: '상세 정보를 조회하였습니다.', data: resume });
     } catch (err) {
       next(err);
     }

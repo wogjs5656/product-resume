@@ -12,6 +12,26 @@ export class UserController {
       const { email, password, passwordRe, name, age, gender, grade } =
         req.body;
 
+        if (!email || !password || !passwordRe) {
+          return res.status(401).json({message: '이메일과 비밀번호는 필수 값입니다.'})
+        }
+
+        if (password.length < 6) {
+          return res.status(401).json({message: '입력하신 비밀번호가 6자 미만입니다.'})
+        }
+    
+        if (password !== passwordRe) {
+          return res.status(401).json({message: '입력하신 비밀번호가 일치하지 않습니다.'})
+        }
+
+         
+    const isExistUser = await this.userService.userRepository.findUserByEmail(email);
+ 
+        if (isExistUser) {
+          return res.status(401).json({message: '이미 존재하는 이메일 입니다.'})
+        }
+    
+
       const emailUser = await this.userService.signUpWithEmail(
         email,
         password,

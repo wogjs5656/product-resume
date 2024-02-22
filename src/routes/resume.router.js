@@ -2,7 +2,7 @@ import express from 'express';
 import { prisma } from '../../utils/index.js';
 import { ResumeController } from '../controllers/resume.controller.js'; 
 import { ResumeService } from '../services/resume.service.js';
-import { ResumeRepository } from '../repository/resume.repository.js';
+import { ResumeRepository } from '../repositories/resume.repository.js';
 import needSigninMiddleware from '../../middlewares/need-signin.middleware.js';
 import bcrypt from 'bcrypt';
 const router = express.Router();
