@@ -82,7 +82,7 @@ export class ResumeController {
       const { userId } = req.user;
       const { resumeId } = req.params;
       const { resumeTitle, resumeIntro, resumeStatus } = req.body;
-      
+
       const updatedResume = await this.resumeService.updateResume(
         userId,
         resumeId,
@@ -91,26 +91,25 @@ export class ResumeController {
         resumeStatus
       );
 
-      return res.status(201).json({ data: updatedResume});
+      return res.status(201).json({ data: updatedResume });
     } catch (error) {
       next(error);
     }
   };
 
+  deleteResume = async (req, res, next) => {
+    try {
+      const { resumeId } = req.params;
+      const userId = req.user.userId;
 
-    deleteResume = async (req, res, next) => {
-        try {
-            const { resumeId } = req.params;
-            const userId = req.user.userId;
-      
-            if (!resumeId) {
-              return res.status(400).json({ message: 'resumeId는 필수값입니다.' });
-            }
-      
-            const result = await this.resumeService.deleteResume(resumeId, userId);
-            return res.status(201).json(result);
-          } catch (error) {
-            next(error);
-          }
+      if (!resumeId) {
+        return res.status(400).json({ message: 'resumeId는 필수값입니다.' });
+      }
+
+      const result = await this.resumeService.deleteResume(resumeId, userId);
+      return res.status(201).json(result);
+    } catch (error) {
+      next(error);
     }
+  };
 }
