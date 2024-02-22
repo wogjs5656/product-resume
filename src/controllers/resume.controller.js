@@ -70,7 +70,7 @@ export class ResumeController {
       const resume = await this.resumeService.findDeResume(resumeId);
 
       if(!resume) {
-        return res.json({data:resume})
+        return res.json({data: {}})
       }
       return res
         .status(200)
